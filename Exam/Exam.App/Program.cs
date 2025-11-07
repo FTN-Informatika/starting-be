@@ -1,25 +1,45 @@
+using Exam.App;
+using Exam.App.Controllers.Middleware;
+using Exam.App.Infrastructure.Database;
+using Exam.App.Services;
+using Exam.App.Services.Mappers;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Startup.AddLogging(builder);
+Startup.AddSwagger(builder);
+Startup.AddCors(builder);
+Startup.AddAuthenticationAndAuthorization(builder);
 
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Service and Repository Dependency Injection
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.InitializeAsync(services);
+}
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

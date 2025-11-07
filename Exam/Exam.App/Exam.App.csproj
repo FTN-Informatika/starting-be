@@ -27,9 +27,6 @@
   <ItemGroup>
     <Folder Include="Domain\Repositories\" />
     <Folder Include="Infrastructure\Database\Repositories\" />
-    <Folder Include="Services\Exceptions\" />
-    <Folder Include="Services\Mappers\" />
-    <Folder Include="Services\Dtos\" />
   </ItemGroup>
 
 </Project>

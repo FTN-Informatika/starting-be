@@ -1,48 +1,47 @@
-﻿using BuildingExample.Services;
-using BuildingExample.Services.DTOs;
+﻿using Exam.App.Services;
+using Exam.App.Services.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BuildingExample.Controllers
+namespace Exam.App.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    private readonly IAuthService _authService;
+
+    public AuthController(IAuthService authService)
     {
-        private readonly IAuthService _authService;
+        _authService = authService;
+    }
 
-        public AuthController(IAuthService authService)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegistrationDto data)
+    {
+        if (!ModelState.IsValid)
         {
-            _authService = authService;
+            return BadRequest(ModelState);
         }
+        await _authService.Register(data);
+        return NoContent();
+    }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegistrationDTO data)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto data)
+    {
+        if (!ModelState.IsValid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            await _authService.Register(data);
-            return NoContent();
+            return BadRequest(ModelState);
         }
+        var result = await _authService.Login(data);
+        return Ok(result);
+    }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO data)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _authService.Login(data);
-            return Ok(result);
-        }
-
-        [Authorize]
-        [HttpGet("profile")]
-        public async Task<IActionResult> Profile()
-        {
-            return Ok(await _authService.GetProfile(User));
-        }
+    [Authorize]
+    [HttpGet("profile")]
+    public async Task<IActionResult> Profile()
+    {
+        return Ok(await _authService.GetProfile(User));
     }
 }
