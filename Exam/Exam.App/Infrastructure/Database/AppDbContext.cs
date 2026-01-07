@@ -19,6 +19,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             new IdentityRole { Name = "User", NormalizedName = "USER" }
         );
 
-        // Seed Buildings
+        // Seed Entities
     }
 }
