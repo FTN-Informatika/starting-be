@@ -29,7 +29,7 @@ public static class Startup
             options.AddDefaultPolicy(
                 builder =>
                 {
-                    builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
+                    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
         });
     }
